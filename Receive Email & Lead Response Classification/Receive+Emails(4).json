@@ -1,0 +1,553 @@
+{
+  "name": "Receive Emails",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "5d39c049-0448-48b8-a9e6-d34ee5efdcd0",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "a2c9UEjNDk7eySDI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dea7236b-9bdf-40d8-9df8-af2d4762c7ab",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Re: Quick note",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        0
+      ],
+      "id": "ae200a0d-d783-4cd3-b36c-ee802eb63b45",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "24adf17f-c7d6-80bf-ad5b-cf1076eb5686",
+          "mode": "list",
+          "cachedResultName": "Test Database",
+          "cachedResultUrl": "https://www.notion.so/24adf17fc7d680bfad5bcf1076eb5686"
+        },
+        "limit": 2,
+        "filterType": "json",
+        "filterJson": "={\n  \"property\": \"Email\",\n  \"email\": { \"equals\": \"{{($json.From).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i)?.[0]\n    ?.toLowerCase() || \"\" }}\" }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -16
+      ],
+      "id": "85e21e19-35a2-4130-a650-d46564499db9",
+      "name": "Get many database pages1",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c3a23123-5501-40d9-8a29-63e87e565599",
+              "name": "notion_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        -16
+      ],
+      "id": "4cd7d6fc-83bb-4a4a-9669-9d15c8ba59b8",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Gmail Trigger').item.json.snippet }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You have recieved an email of our company lead. We want to classify it to {\"Interested\", \"Not Interested\"}.\n\n\"Interested\": Means that we can send him another email. Because he didn't say he is not interested or don't message me again."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1024,
+        -16
+      ],
+      "id": "1f30b6cd-9be2-4af7-aa53-4f798dc1be6d",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        192
+      ],
+      "id": "cec1e0a2-1d28-43b9-b658-e42e90fe41e0",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "RHAWm0XpHZAxlh4C",
+          "name": "Resturant API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"state\": {\n\t\t\t\"type\": \"string\",\n            \"description\": \"Email classification by AI\"\n\t\t}\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1216,
+        192
+      ],
+      "id": "57efc070-d54d-4b6e-ae1b-c956229c1c3c",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.state }}",
+                    "rightValue": "Interested",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9bbd8614-0dba-4999-9c16-c6966e56a81f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "interested"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2471a9de-6ffe-49c7-bf2e-0395d04cdd3e",
+                    "leftValue": "={{ $json.output.state }}",
+                    "rightValue": "Not interested",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "not"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1376,
+        -16
+      ],
+      "id": "b90e7d70-a021-42e6-b5ba-5ee840131e1a",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Edit Fields').item.json.notion_id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Meeting Link Sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1968,
+        -144
+      ],
+      "id": "b06c1e0e-08bf-4acf-9f84-a740e6af7b17",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.From }}",
+        "subject": "={{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "=<!doctype html> <html>   <body style=\"margin:0;padding:0;background:#f6f7fb;\">     <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"background:#f6f7fb;\">       <tr>         <td align=\"center\" style=\"padding:24px;\">           <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #eee;\">             <tr>               <td style=\"padding:24px 28px;font-family:Arial,Helvetica,sans-serif;color:#222;\">                 <p style=\"margin:0 0 12px;font-size:16px;\">Hi {{ $json.property_name }},</p>                 <p style=\"margin:0 0 16px;font-size:14px;line-height:1.6;\">                   Thanks for getting back to me—really appreciate your time.                   I’d love to walk you through how we can help and answer any questions.                   Please pick a time that suits you:                 </p>                  <!-- Button -->                 <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:18px 0 8px;\">                   <tr>                     <td align=\"center\">                       <a href=\"https://calendar.app.google/BNxH2DzKbCqFJja68\"                          style=\"display:inline-block;padding:12px 20px;background:#0b5fff;color:#ffffff;                                 text-decoration:none;border-radius:8px;font-weight:bold;font-size:14px;\">                         Book a Meeting                       </a>                     </td>                   </tr>                 </table>                  <!-- Fallback link -->                 <p style=\"margin:8px 0 16px;font-size:12px;color:#555;\">                   Or copy this link into your browser:<br>                   <a href=\"https://calendar.app.google/BNxH2DzKbCqFJja68\" style=\"color:#0b5fff;\">                     https://calendar.app.google/BNxH2DzKbCqFJja68                   </a>                 </p>                  <p style=\"margin:0 0 4px;font-size:14px;\">Looking forward to speaking!</p>                  <p style=\"margin:16px 0 0;font-size:13px;color:#444;line-height:1.5;\">                   Best regards,<br>                   <strong>Karim Nabil</strong><br>                   AI Product Manager — n8n with Karim                 </p>               </td>             </tr>           </table>            <!-- tiny footer spacing -->           <div style=\"height:24px;line-height:24px;font-size:0;\">&nbsp;</div>         </td>       </tr>     </table>   </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2272,
+        -144
+      ],
+      "id": "c757d5e3-fe51-4a6f-a0c5-93eb63dfdf10",
+      "name": "Send a message",
+      "webhookId": "0357c60b-a727-414d-8488-90739df40325",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "a2c9UEjNDk7eySDI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Edit Fields').item.json.notion_id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Drop"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1968,
+        160
+      ],
+      "id": "c807aa4b-e64b-4823-815c-58504f9ba942",
+      "name": "Update a database page1",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "1988fe86777b5307",
+          "threadId": "1988f910c51fa7de",
+          "snippet": "Hi I am interested On Sat, Aug 9, 2025 at 7:01 PM &lt;karimnouh112@gmail.com&gt; wrote: Hi Karim Nabil, Love iWork&#39;s drive toward national soil engineering leadership—also a fan of how deeply you",
+          "payload": {
+            "mimeType": "multipart/alternative"
+          },
+          "sizeEstimate": 3583,
+          "historyId": "4177846",
+          "internalDate": "1754761027000",
+          "labels": [
+            {
+              "id": "SENT",
+              "name": "SENT"
+            },
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "IMPORTANT",
+              "name": "IMPORTANT"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "Subject": "Re: Quick note, Karim Nabil",
+          "From": "Karim Nabil <karimnouh112@gmail.com>",
+          "To": "karimnouh112@gmail.com"
+        }
+      }
+    ],
+    "If": [
+      {
+        "json": {
+          "id": "1988fe86777b5307",
+          "threadId": "1988f910c51fa7de",
+          "snippet": "Hi I am interested On Sat, Aug 9, 2025 at 7:01 PM &lt;karimnouh112@gmail.com&gt; wrote: Hi Karim Nabil, Love iWork&#39;s drive toward national soil engineering leadership—also a fan of how deeply you",
+          "payload": {
+            "mimeType": "multipart/alternative"
+          },
+          "sizeEstimate": 3583,
+          "historyId": "4177846",
+          "internalDate": "1754761027000",
+          "labels": [
+            {
+              "id": "SENT",
+              "name": "SENT"
+            },
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "IMPORTANT",
+              "name": "IMPORTANT"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "Subject": "Re: Quick note, Karim Nabil",
+          "From": "Karim Nabil <karimnouh112@gmail.com>",
+          "To": "karimnouh112@gmail.com"
+        }
+      }
+    ],
+    "Get many database pages1": [
+      {
+        "json": {
+          "id": "24adf17f-c7d6-81ab-bca8-eaca48fd54a4",
+          "name": "iWork Space",
+          "url": "https://www.notion.so/iWork-Space-24adf17fc7d681abbca8eaca48fd54a4",
+          "property_email": "karimnouh112@gmail.com",
+          "property_name": "Karim Nabil",
+          "property_last_communication": {
+            "start": "2025-08-09T12:42:00.000-04:00",
+            "end": null,
+            "time_zone": null
+          },
+          "property_next_communication": false,
+          "property_title": "Business Development Manager",
+          "property_status": "Email Sent",
+          "property_company": "iWork Space"
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "notion_id": "24adf17f-c7d6-81ab-bca8-eaca48fd54a4"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Get many database pages1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "72ba7312-24e5-4e57-925d-f5685e21cab1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3261c478aff4b163520820f021817138b2454c49859c71acb92208b343ce1eb1"
+  },
+  "id": "yGtlo9cwQjLxmoQ5",
+  "tags": []
+}
