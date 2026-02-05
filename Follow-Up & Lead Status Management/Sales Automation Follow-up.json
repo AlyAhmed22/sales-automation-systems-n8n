@@ -1,0 +1,389 @@
+{
+  "name": "Sales Automation Follow-up",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "event": "pagedUpdatedInDatabase",
+        "databaseId": {
+          "__rl": true,
+          "value": "24adf17f-c7d6-80bf-ad5b-cf1076eb5686",
+          "mode": "list",
+          "cachedResultName": "CRM Database",
+          "cachedResultUrl": "https://www.notion.so/24adf17fc7d680bfad5bcf1076eb5686"
+        }
+      },
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        16
+      ],
+      "id": "1181affe-fcec-4127-abdd-dfe33cf9410a",
+      "name": "Notion Trigger"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -896,
+        16
+      ],
+      "id": "02cbbae8-83d8-4d0f-9d5b-d3d3e0546f95",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "66793760-2107-4f72-afce-414b92a3758f",
+              "leftValue": "={{ $json['Next Communication'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -608,
+        32
+      ],
+      "id": "a73ea636-d106-4dbb-9226-12bef99e6574",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Email Sent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ee4f3eb2-9776-4ee2-b9c2-b9753c95b48b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Go"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "31fc474d-b72e-4a9c-9003-2788340cf7a0",
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Email Follow-up Sent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Drop"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a2a726fa-6fcd-4632-a05f-2b9e2d5df61c",
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Meeting Link Sent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Meeting Follow-up"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -320,
+        16
+      ],
+      "id": "42c5aaf2-a2e4-4ebe-a73f-5149e179a4e2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Notion Trigger').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Drop"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        240
+      ],
+      "id": "4b776fb6-2719-42f7-9d1a-4bec4fd0cd3e",
+      "name": "Update a database page"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Notion Trigger').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Email Follow-up Sent"
+            },
+            {
+              "key": "Last Communication|date",
+              "date": "={{ $now }}",
+              "timezone": "Africa/Cairo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "af652e18-cf50-4354-8e00-9aa89167e704",
+      "name": "Update a database page1"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Re: Quick note, {{ $json.Name }}",
+        "message": "=<!DOCTYPE html> <html> <head>   <meta charset=\"UTF-8\">   <title>Gentle Reminder</title> </head> <body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px;\">   <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);\">     <tr>       <td style=\"padding: 20px;\">                  <p style=\"font-size: 16px; margin-bottom: 16px;\">Dear {{ $json.Name }},</p>                  <p style=\"font-size: 15px; margin-bottom: 16px;\">           I hope this message finds you well.            I just wanted to kindly follow up regarding my previous email.            When you have a chance, I would greatly appreciate your update or guidance on the matter.          </p>          <p style=\"font-size: 15px; margin-bottom: 16px;\">           Please let me know if you need any additional details from my side.          </p>                  <p style=\"font-size: 15px; margin-bottom: 24px;\">           Thank you for your time and attention, and I look forward to hearing from you.         </p>                  <p style=\"font-size: 15px; margin-bottom: 8px;\">Best regards,</p>         <p style=\"font-size: 15px; font-weight: bold; margin: 0;\">Karim Nabil</p>         <p style=\"font-size: 14px; margin: 0;\">AI Product Manager / iWork</p>         <p style=\"font-size: 14px; margin: 0;\">+21020000</p>        </td>     </tr>   </table> </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "aa4ac7e8-380f-4e8c-84fb-d869e8e37670",
+      "name": "Create a draft",
+      "webhookId": "aef3c69c-3c6c-45d3-ba2e-83a164fd1068"
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=Please follow-up with {{ $json.Name }} whose email is {{ $json.Email }}.\nHe was interested but didn't book a meeting.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        432
+      ],
+      "id": "f15a9d4d-218f-45dd-a5f0-fbf46e941208",
+      "name": "Send a text message",
+      "webhookId": "09d2d625-7841-421e-adfd-0417bb0e84fb"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Notion Trigger": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Update a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0107b74c-6c29-408a-b1bc-3b7cf760730d",
+  "meta": {
+    "instanceId": "576ad422625b4760aaff74456115a870116e646ba8cde8d6c6d9697fd985cf49"
+  },
+  "id": "9pVeeEo2Tcvwq6x1",
+  "tags": [
+    {
+      "updatedAt": "2026-01-17T18:44:15.916Z",
+      "createdAt": "2026-01-17T18:44:15.916Z",
+      "id": "0gCn33mUW8RDiK3S",
+      "name": "sales automation"
+    }
+  ]
+}
