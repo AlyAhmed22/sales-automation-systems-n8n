@@ -1,0 +1,821 @@
+{
+  "name": "Proposal Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "After Meeting Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Agent Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Lead Interested?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name"
+            },
+            {
+              "fieldLabel": "Lead Name"
+            },
+            {
+              "fieldLabel": "Main Services to Offer",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "AI Agents"
+                  },
+                  {
+                    "option": "AI Automation"
+                  },
+                  {
+                    "option": "System Engineering"
+                  }
+                ]
+              },
+              "multiselect": true
+            },
+            {
+              "fieldLabel": "Prices to offer"
+            },
+            {
+              "fieldLabel": "Notes"
+            },
+            {
+              "fieldLabel": "Lead Email",
+              "fieldType": "email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -784,
+        -48
+      ],
+      "id": "b4a4ec57-d5cc-4d7d-837e-c7fdfbf353fa",
+      "name": "On form submission1",
+      "webhookId": "7e72980a-0e9c-4041-8623-ae8cf4463512"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "24adf17f-c7d6-80bf-ad5b-cf1076eb5686",
+          "mode": "list",
+          "cachedResultName": "Test Database",
+          "cachedResultUrl": "https://www.notion.so/24adf17fc7d680bfad5bcf1076eb5686"
+        },
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "emailValue": "={{ $json['Lead Email'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -528,
+        -48
+      ],
+      "id": "43b289a6-26bc-42f7-8b42-76f0ef3e1445",
+      "name": "Get many database pages1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('On form submission1').item.json['Lead Interested?'] }}",
+                    "rightValue": "Yes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a3d1582c-b866-42fa-b1f0-709a04be6e84"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Yes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "49606440-1bb3-4479-831c-3ce7893c8590",
+                    "leftValue": "={{ $('On form submission1').item.json['Lead Interested?'] }}",
+                    "rightValue": "No",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        128,
+        -64
+      ],
+      "id": "8afe140c-801d-4f0d-a18b-3d421e51b43d",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5cdb9e02-3699-4c97-a986-9280ca5dc6bf",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        -48
+      ],
+      "id": "ee0a3a41-517c-4b14-8434-51a758b155b9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=ERROR: This email doesn't exist: {{ $('On form submission1').item.json['Lead Email'] }}\n\nYou have just filled the form with this email. Recheck!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        224
+      ],
+      "id": "91e0640c-995a-4356-9193-d68edfea5c49",
+      "name": "Send a text message",
+      "webhookId": "7eed57bb-ce0e-4523-81a2-2e9c7894923e",
+      "credentials": {
+        "telegramApi": {
+          "id": "A7wHo2YizJtlT9Tx",
+          "name": "XYZ Internal Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Drop"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        112
+      ],
+      "id": "fd958635-3d16-4f74-817e-23df89675440",
+      "name": "Update a database page1",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Company Name: {{ $('On form submission1').item.json['Company Name'] }}\nFocal Person: {{ $('On form submission1').item.json['Lead Name'] }}\nServices They are interested in: {{ $('On form submission1').item.json['Main Services to Offer'] }}\nPrices we will offer: {{ $('On form submission1').item.json['Prices to offer'] }}\nNotes from the meeting: {{ $('On form submission1').item.json.Notes }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a proposal-generation assistant.  \nYour job is to take structured input from a sales agent (notes, client details, company name, focal person, services, and pricing) and output ONLY a valid JSON object.  Do not add explanations, text outside JSON, or comments.  Each JSON key corresponds to a placeholder in the proposal template.   \n\nTemplate Placeholders: \n- [Client Name] \n- [Company Name] \n- [problem 1], [problem 2], [problem 3] \n- [Services] \n- [Pricing Model]  \n\n### JSON Structure to Output: \n{   \"client_name\": \"<string – replaces [Client Name]>\",   \n\"company_name\": \"<string – replaces [Company Name]>\",   \n\"problems\": [\"<string – replaces [problem 1]>\",     \"<string – replaces [problem 2]>\",     \"<string – replaces [problem 3]>\"   ],\n\"services\": \"<string – replaces [Services] and make it more professional and explained>\",   \n\"pricing_model\": \"<string – replaces [Pricing Model]>\" }  \n\n### Rules: \n- Always return 3 problems (if fewer provided, expand briefly based on notes). \n- Keep phrasing professional and business-friendly. \n- Never output placeholders like [Client Name]; replace them with actual values from input. \n- Output must always be valid JSON.\n- Rewrite every thing in an aatractive way and sales encouraging"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        496,
+        -288
+      ],
+      "id": "eb25cb19-8237-4e90-81d9-8784294ca34d",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -128
+      ],
+      "id": "75475e3f-6f1a-4c97-86c0-e6f12cf2369c",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "zCoL44EP9rfzm2VX",
+          "name": "3aqar_llm"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1B17s5P9fs2KluaQAZZzDUiL5osgSYzUN55Y5_0GYL0o",
+          "mode": "list",
+          "cachedResultName": "Proposal Template",
+          "cachedResultUrl": "https://docs.google.com/document/d/1B17s5P9fs2KluaQAZZzDUiL5osgSYzUN55Y5_0GYL0o/edit?usp=drivesdk"
+        },
+        "name": "={{ $('On form submission1').item.json['Company Name'] }} - Proposal",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        880,
+        -288
+      ],
+      "id": "abc6a8ad-c333-4ec4-857f-4d2900b666e0",
+      "name": "Copy file",
+      "executeOnce": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "OCZWhRphVS6qRkHE",
+          "name": "Public Cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "[Client Name]",
+              "replaceText": "={{ $('On form submission1').item.json['Lead Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[Company Name]",
+              "replaceText": "={{ $('On form submission1').item.json['Company Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[problem 1]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.problems[0] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[problem 2]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.problems[1] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[problem 3]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.problems[2] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[Services]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.services }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[Pricing Model]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.pricing_model }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -288
+      ],
+      "id": "9355651f-4c2b-43b5-b79c-c1611d00572c",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "yUC7Wsk1ZirXOofx",
+          "name": "Proposals Docs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Basic LLM Chain1').item.json.company_name }} - Proposal - AAutomation with Karim",
+        "message": "=Email to send to: {{ $('On form submission1').item.json['Lead Email'] }}\n\nDear {{ $('On form submission1').item.json['Lead Name'] }},\nIt was a great honor to meet you and to get to know more about {{ $('On form submission1').item.json['Company Name'] }}.\nAs discussed, Please find attached our proposal.\n\nThanks,\nKarim Nabil\nBD Manager\n",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "proposal"
+              }
+            ]
+          },
+          "sendTo": "={{ $('On form submission1').item.json['Lead Email'] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1616,
+        -288
+      ],
+      "id": "39afcbbe-66f0-4d83-b84f-0a3a9a11afce",
+      "name": "Create a draft",
+      "webhookId": "7f6660d8-9a20-4db1-90f4-08e809adff99",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "a2c9UEjNDk7eySDI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "proposal",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          },
+          "fileName": "proposal.pdf"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1360,
+        -288
+      ],
+      "id": "e619f644-c7e2-40ad-be5f-05593c4f1b0b",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "OCZWhRphVS6qRkHE",
+          "name": "Public Cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Get many database pages1').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Proposal Ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1840,
+        -288
+      ],
+      "id": "4197f618-5023-4a1a-87c9-0912c8c1ac9f",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=Proposal for {{ $json.property_name }} is ready and drafted in your email for {{ $json.property_email }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2048,
+        -288
+      ],
+      "id": "1ca01310-2cd4-4c29-ba22-8c947b04fa0e",
+      "name": "Send a text message1",
+      "webhookId": "7eed57bb-ce0e-4523-81a2-2e9c7894923e",
+      "credentials": {
+        "telegramApi": {
+          "id": "A7wHo2YizJtlT9Tx",
+          "name": "XYZ Internal Bot"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "On form submission1": [
+      {
+        "json": {
+          "Agent Name": "Karim Nabil",
+          "Lead Interested?": "Yes",
+          "Company Name": "iWork",
+          "Lead Name": "Ahmed Aly",
+          "Main Services to Offer": [
+            "AI Agents",
+            "AI Automation"
+          ],
+          "Prices to offer": "50 EGP/month for 6 months",
+          "Notes": "He wasw interested in automating sales processes to increase productivity",
+          "Lead Email": "test@gmail.co",
+          "submittedAt": "2025-08-26T21:43:56.305-04:00",
+          "formMode": "test"
+        }
+      }
+    ],
+    "Get many database pages1": [
+      {
+        "json": {
+          "id": "24adf17f-c7d6-81d5-a599-d8a55025f53c",
+          "name": "ABC",
+          "url": "https://www.notion.so/ABC-24adf17fc7d681d5a599d8a55025f53c",
+          "property_email": "test@gmail.co",
+          "property_name": "Omar Mohamed",
+          "property_last_communication": {
+            "start": "2025-08-12T02:17:00.000+02:00",
+            "end": null,
+            "time_zone": null
+          },
+          "property_next_communication": true,
+          "property_title": "Business Development Manager",
+          "property_status": "Drop",
+          "property_company": "ABC"
+        }
+      }
+    ],
+    "Switch1": [
+      {
+        "json": {
+          "id": "24adf17f-c7d6-81d5-a599-d8a55025f53c",
+          "name": "ABC",
+          "url": "https://www.notion.so/ABC-24adf17fc7d681d5a599d8a55025f53c",
+          "property_email": "test@gmail.co",
+          "property_name": "Omar Mohamed",
+          "property_last_communication": {
+            "start": "2025-08-12T02:17:00.000+02:00",
+            "end": null,
+            "time_zone": null
+          },
+          "property_next_communication": true,
+          "property_title": "Business Development Manager",
+          "property_status": "Drop",
+          "property_company": "ABC"
+        }
+      }
+    ],
+    "If": [
+      {
+        "json": {
+          "id": "24adf17f-c7d6-81d5-a599-d8a55025f53c",
+          "name": "ABC",
+          "url": "https://www.notion.so/ABC-24adf17fc7d681d5a599d8a55025f53c",
+          "property_email": "test@gmail.co",
+          "property_name": "Omar Mohamed",
+          "property_last_communication": {
+            "start": "2025-08-12T02:17:00.000+02:00",
+            "end": null,
+            "time_zone": null
+          },
+          "property_next_communication": true,
+          "property_title": "Business Development Manager",
+          "property_status": "Drop",
+          "property_company": "ABC"
+        }
+      }
+    ],
+    "Basic LLM Chain1": [
+      {
+        "json": {
+          "client_name": "Ahmed Aly",
+          "company_name": "iWork",
+          "problems": [
+            "Inconsistent sales process that hinders productivity.",
+            "Lack of automation leading to time inefficiency in sales tasks.",
+            "Need for enhanced customer engagement to drive sales growth."
+          ],
+          "services": "We offer cutting-edge AI Agents and AI Automation solutions that are designed to streamline your sales processes, enhance productivity, and improve customer interactions, ensuring your team can focus on closing deals rather than managing mundane tasks.",
+          "pricing_model": "Our competitive pricing model is set at 50 EGP per month for a duration of 6 months, providing you a cost-effective solution to revolutionize your sales strategy."
+        }
+      }
+    ],
+    "Copy file": [
+      {
+        "json": {
+          "kind": "drive#file",
+          "id": "14gpofK6u-578J7KtI39KQk3_6nHRo00ZpGhWrKwt_YM",
+          "name": "iWork - Proposal",
+          "mimeType": "application/vnd.google-apps.document"
+        }
+      }
+    ],
+    "Update a document": [
+      {
+        "json": {
+          "occurrencesChanged": 2,
+          "documentId": "14gpofK6u-578J7KtI39KQk3_6nHRo00ZpGhWrKwt_YM"
+        }
+      }
+    ],
+    "Download file": [
+      {
+        "json": {
+          "occurrencesChanged": 2,
+          "documentId": "14gpofK6u-578J7KtI39KQk3_6nHRo00ZpGhWrKwt_YM"
+        }
+      }
+    ],
+    "Create a draft": [
+      {
+        "json": {
+          "id": "r-3634533327785721500",
+          "message": {
+            "id": "198e944187ce8a57",
+            "threadId": "198e944187ce8a57",
+            "labelIds": [
+              "DRAFT"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8d07460b-a588-40d2-b7ab-9c4f5d880357",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3261c478aff4b163520820f021817138b2454c49859c71acb92208b343ce1eb1"
+  },
+  "id": "9abL91iSAgHsZeeB",
+  "tags": [
+    {
+      "createdAt": "2025-08-09T16:21:13.080Z",
+      "updatedAt": "2025-08-09T16:21:13.080Z",
+      "id": "y06wYDsDlwLrVyJD",
+      "name": "sales automation"
+    }
+  ]
+}
