@@ -1,0 +1,186 @@
+{
+  "name": "Meeting Booked Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "24adf17f-c7d6-80bf-ad5b-cf1076eb5686",
+          "mode": "list",
+          "cachedResultName": "Test Database",
+          "cachedResultUrl": "https://www.notion.so/24adf17fc7d680bfad5bcf1076eb5686"
+        },
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "emailValue": "={{ $json.attendees[0].email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        -48
+      ],
+      "id": "ab4161ca-8421-4a75-99e0-afacd60ca432",
+      "name": "Get many database pages",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Meeting Booked"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        -48
+      ],
+      "id": "88f1afd8-f06f-4221-955e-640c6dff8cf7",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=We have new booked meeting with {{ $json.property_name }} from {{ $json.name }} \nEmail: {{ $('Google Calendar Trigger').item.json.attendees[0].email }}\n\nAfter the meeting, fill this form:\nhttps://turtle-live-bat.ngrok-free.app/form/7e72980a-0e9c-4041-8623-ae8cf4463512\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        -48
+      ],
+      "id": "095b0b21-9104-4ef7-a676-d02a197d3e11",
+      "name": "Send a text message",
+      "webhookId": "09d2d625-7841-421e-adfd-0417bb0e84fb",
+      "credentials": {
+        "telegramApi": {
+          "id": "A7wHo2YizJtlT9Tx",
+          "name": "XYZ Internal Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "calendarId": {
+          "__rl": true,
+          "value": "6e56dce1c19058686605a5110d3058843bb7efccb5435dcf757bc888a0e942b1@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "XYZ Sales"
+        },
+        "triggerOn": "eventCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -48
+      ],
+      "id": "3fc943b7-cbfd-4b66-b9c4-87746ebff550",
+      "name": "Google Calendar Trigger",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "jlcDmkTiYYhOTQ4b",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6826290a-c9b6-4217-adca-be9d3cf0c809",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3261c478aff4b163520820f021817138b2454c49859c71acb92208b343ce1eb1"
+  },
+  "id": "uCMj8zv9RxhDqTiC",
+  "tags": [
+    {
+      "createdAt": "2025-08-09T16:21:13.080Z",
+      "updatedAt": "2025-08-09T16:21:13.080Z",
+      "id": "y06wYDsDlwLrVyJD",
+      "name": "sales automation"
+    }
+  ]
+}
