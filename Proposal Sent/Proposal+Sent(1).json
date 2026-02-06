@@ -1,0 +1,327 @@
+{
+  "name": "Proposal Sent",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -960,
+        -112
+      ],
+      "id": "3db7752c-b634-49cf-aca7-e823868b77d9",
+      "name": "Telegram Trigger",
+      "webhookId": "c51e47f4-d58f-4c67-9e88-1ef81e8afdc4",
+      "credentials": {
+        "telegramApi": {
+          "id": "A7wHo2YizJtlT9Tx",
+          "name": "XYZ Internal Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Extract Email from the message.\n\nOUTPUT\n{\n\"email\": \"\"\n}\n\nRULES\nIf there is no email in the message, leave the output empty"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -752,
+        -112
+      ],
+      "id": "648bbc34-ba9d-4d46-b1c6-4e6f5f3b9fd9",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwq-32b:free",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        80
+      ],
+      "id": "0aa11399-4adb-4c5a-8e96-2965d383afbd",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "RHAWm0XpHZAxlh4C",
+          "name": "Resturant API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Proposal Sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        -128
+      ],
+      "id": "1747888a-6f78-4726-9994-90f6b6fe06a3",
+      "name": "Update a database page2",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "24adf17f-c7d6-80bf-ad5b-cf1076eb5686",
+          "mode": "list",
+          "cachedResultName": "Test Database",
+          "cachedResultUrl": "https://www.notion.so/24adf17fc7d680bfad5bcf1076eb5686"
+        },
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "emailValue": "={{ $json.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -384,
+        -112
+      ],
+      "id": "52a2c5b3-2248-4471-be1e-2765e18df2bb",
+      "name": "Get many database pages",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5cdb9e02-3699-4c97-a986-9280ca5dc6bf",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        -112
+      ],
+      "id": "2f167668-ffaa-47bf-a162-9d028e05b9d2",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=ERROR: This email doesn't exist: {{ $('Basic LLM Chain').item.json.email }}\nRecheck!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        144
+      ],
+      "id": "ec8f9cd7-5e45-478a-9ae0-ff62d4c82a16",
+      "name": "Send a text message2",
+      "webhookId": "7eed57bb-ce0e-4523-81a2-2e9c7894923e",
+      "credentials": {
+        "telegramApi": {
+          "id": "A7wHo2YizJtlT9Tx",
+          "name": "XYZ Internal Bot"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 273080024,
+          "message": {
+            "message_id": 11,
+            "from": {
+              "id": 697626167,
+              "is_bot": false,
+              "first_name": "Karim",
+              "last_name": "Nabil",
+              "username": "kariimnabil",
+              "language_code": "en"
+            },
+            "chat": {
+              "id": 697626167,
+              "first_name": "Karim",
+              "last_name": "Nabil",
+              "username": "kariimnabil",
+              "type": "private"
+            },
+            "date": 1756262397,
+            "text": "I sent the proposal to kke@ffdfm.com",
+            "entities": [
+              {
+                "offset": 23,
+                "length": 13,
+                "type": "email"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "Basic LLM Chain": [
+      {
+        "json": {
+          "email": "kke@ffdfm.com"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update a database page2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3c574f0e-b595-4c36-8407-3946d3b0f501",
+  "meta": {
+    "instanceId": "3261c478aff4b163520820f021817138b2454c49859c71acb92208b343ce1eb1"
+  },
+  "id": "hH48plVAPvkcRRmX",
+  "tags": [
+    {
+      "createdAt": "2025-08-09T16:21:13.080Z",
+      "updatedAt": "2025-08-09T16:21:13.080Z",
+      "id": "y06wYDsDlwLrVyJD",
+      "name": "sales automation"
+    }
+  ]
+}
