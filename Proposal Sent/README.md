@@ -1,4 +1,4 @@
-Proposal Sent & Error Handling
+##Proposal Sent & Error Handling
 
 To prevent workflow interruptions caused by invalid or mistyped client emails, the CRM "Get Client" node is configured to always return data instead of throwing an error.
 
