@@ -1,5 +1,5 @@
-Workflow: Proposal Creation & Sending Automation
-Overview
+###Proposal Creation & Sending Automation
+##Overview
 This workflow automates the creation, preparation, and delivery of sales proposals after a lead reaches the proposal stage. It combines CRM data, AI-generated content, document templates, and human-in-the-loop approval to ensure high-quality proposals with minimal manual effort.
 
 Business Goal
