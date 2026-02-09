@@ -56,20 +56,6 @@ The system covers the full sales journey:
    - Generate contract drafts
    - Prepare deal details for signing
 
-8. **Contract Sent**
-   - Send contract to client
-   - Notify sales team
-   - Track contract status
-
-9. **Contract Signed**
-   - Detect signed contracts
-   - Automatically move deal to “Won”
-   - Notify stakeholders
-
-10. **Onboarding**
-    - Trigger onboarding workflows
-    - Update CRM
-    - Notify internal teams
 
 ---
 
