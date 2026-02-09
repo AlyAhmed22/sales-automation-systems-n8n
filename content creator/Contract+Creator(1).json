@@ -1,0 +1,768 @@
+{
+  "name": "Contract Creator",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "24adf17f-c7d6-80bf-ad5b-cf1076eb5686",
+          "mode": "list",
+          "cachedResultName": "Test Database",
+          "cachedResultUrl": "https://www.notion.so/24adf17fc7d680bfad5bcf1076eb5686"
+        },
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|email",
+              "condition": "equals",
+              "emailValue": "={{ $json['Client Email'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -992,
+        240
+      ],
+      "id": "fd302e7a-d2eb-482c-a2f4-df21dc58e806",
+      "name": "Get many database pages1",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5cdb9e02-3699-4c97-a986-9280ca5dc6bf",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -768,
+        240
+      ],
+      "id": "37c5ae40-f2f6-4335-b610-4e2a6d068fc7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=ERROR: This email doesn't exist: {{ $('On form submission1').item.json['Client Email'] }}\n\nYou have just filled the form with this email. Recheck!\n\nhttps://turtle-live-bat.ngrok-free.app/form/7e72980a-0e9c-4041-8623-ae8cf4463512",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -608,
+        496
+      ],
+      "id": "40c1a8e7-7250-4541-bfa3-d607ea0fb411",
+      "name": "Send a text message",
+      "webhookId": "7eed57bb-ce0e-4523-81a2-2e9c7894923e",
+      "credentials": {
+        "telegramApi": {
+          "id": "A7wHo2YizJtlT9Tx",
+          "name": "XYZ Internal Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Proposal Accepted"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "26207fdf-da28-40a9-a0dd-ec564f9cf1aa",
+      "name": "Update a database page1",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1ATbQy6F-RVLuSg-bWIdnInioZwvUJ6VvBt4icFqCQ-A",
+          "mode": "list",
+          "cachedResultName": "Contract Template",
+          "cachedResultUrl": "https://docs.google.com/document/d/1ATbQy6F-RVLuSg-bWIdnInioZwvUJ6VvBt4icFqCQ-A/edit?usp=drivesdk"
+        },
+        "name": "={{ $('Update a database page1').item.json.name }} - Contract",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        864,
+        0
+      ],
+      "id": "8fadd93c-444f-4f17-a6c1-42a5ab923a62",
+      "name": "Copy file",
+      "executeOnce": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "OCZWhRphVS6qRkHE",
+          "name": "Public Cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Contract Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Agent Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name"
+            },
+            {
+              "fieldLabel": "Services Chosen",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "AI Agents"
+                  },
+                  {
+                    "option": "AI Automation"
+                  },
+                  {
+                    "option": "System Engineering"
+                  }
+                ]
+              },
+              "multiselect": true
+            },
+            {
+              "fieldLabel": "Price"
+            },
+            {
+              "fieldLabel": "Notes"
+            },
+            {
+              "fieldLabel": "Client Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Starting Date",
+              "fieldType": "date"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -1248,
+        240
+      ],
+      "id": "cb34b674-c9ec-49df-a101-f9868577305f",
+      "name": "On form submission1",
+      "webhookId": "7e72980a-0e9c-4041-8623-ae8cf4463512"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e6194113-c2ab-495b-bb99-7206e01eab89",
+              "leftValue": "={{ $json.property_status }}",
+              "rightValue": "=Proposal Sent",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "eaac4d6c-173c-43fe-a6a4-d4daa541fb4e",
+              "leftValue": "={{ $json.property_status }}",
+              "rightValue": "Proposal Accepted",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -416,
+        192
+      ],
+      "id": "fca83224-c0a7-485d-98b6-2bd19892ae7d",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=ERROR: This email is not in the correct stage to create a contract: {{ $('On form submission1').item.json['Client Email'] }}\n\nYou have just filled the \"Contract Creator\" form with this email. Recheck!\n\nhttps://turtle-live-bat.ngrok-free.app/form/7e72980a-0e9c-4041-8623-ae8cf4463512",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        480
+      ],
+      "id": "1b0555bf-7cf5-42e5-8f64-ae63137d9c57",
+      "name": "Send a text message2",
+      "webhookId": "7eed57bb-ce0e-4523-81a2-2e9c7894923e",
+      "credentials": {
+        "telegramApi": {
+          "id": "A7wHo2YizJtlT9Tx",
+          "name": "XYZ Internal Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Company Name: {{ $('Get many database pages1').item.json.name }}\nServices They are interested in: {{ $('On form submission1').item.json['Services Chosen'] }}\nPrices we will offer: {{ $('On form submission1').item.json.Price }}\nNotes from the contract: {{ $('On form submission1').item.json.Notes }}\nClient Focal Person: {{ $('If').item.json.property_name }}\nClient Focal Person Title: {{ $('If').item.json.property_title }}\nClient Email: {{ $json.property_email }}\nEffective Date: {{ $('On form submission1').item.json['Starting Date'] }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a JSON generator for a simple services agreement.\n\nOutput rules\n\nOutput one JSON object only. No prose, no markdown, no comments.\n\nUse the exact keys listed below. Do not add or remove keys.\n\nStrings default to \"\" if unknown. Numbers default to 0. Arrays may be empty.\n\nDates must be ISO format YYYY-MM-DD.\n\nAmounts are numbers (no currency symbols). Use the top-level \"currency\" for display.\n\nField definitions (keys and types)\n\nproject_name (string) → Understand data provided and generate a title for the project including services and client name [PROJECT_NAME]\n\nclient_legal_name (string) → fills [CLIENT_LEGAL_NAME] (also used in “For [COMPANY_LEGAL_NAME]”)\n\nclient_contact_email (string) → fills [CLIENT_CONTACT_EMAIL]\n\neffective_date (string, ISO date) → fills [EFFECTIVE_DATE]\n\nproject_summary_one_paragraph (string) → fills based on provided details generate a proffesional summary to the project in one paragraph [PROJECT_SUMMARY_ONE_PARAGRAPH]\n\nservices (array of strings) → fills [List of services] (supports 0, 1, or many). Provide a queck summary sentence for each service.\n\npricing_items (array of objects) → fills [Pricing]\n\neach item: { \"label\": string, \"amount\": number, \"type\": \"Recurring, fixed\" }\n\ncurrency (string, ISO 4217 like \"EGP\" or \"USD\")\n\ntotal_amount (number) → sum of all pricing_items[].amount (0 if unknown)\n\npayment_terms (string) → default: \"50% upfront; 50% upon acceptance within 7 days of final delivery.\"\n\nclient_signatory_name (string) → fills [COMPANY_SIGNATORY_NAME]\n\nclient_signatory_title (string) → fills [COMPANY_SIGNATORY_TITLE]\n\nclient_signature_date (string, ISO date) → fills blank date under “For [COMPANY_LEGAL_NAME]”\n\nprovider_signature_date (string, ISO date) → fills blank date under “From iWork Space”\n\nConstants (not returned in JSON)\n\nService Provider fixed text in the document:\niWork Space, Met Ghamr, Contact: karim@test.com\nSignature block: Name: Karim Nabil, Title: Head of Automation\n\nWhen rendering signatures, display “For [COMPANY_LEGAL_NAME]” using client_legal_name.\n\nReturn format\nReturn only a JSON object matching this shape:"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        352,
+        0
+      ],
+      "id": "bd2b0a7a-51b2-45b5-915c-42bf86cf3420",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        352,
+        160
+      ],
+      "id": "8fc3531f-2510-45d6-b41b-c1416ff35377",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "zCoL44EP9rfzm2VX",
+          "name": "3aqar_llm"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "[CLIENT_LEGAL_NAME]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.client_legal_name }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[PROJECT_NAME]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.project_name }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[CLIENT_CONTACT_EMAIL]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.client_contact_email }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[EFFECTIVE_DATE]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.effective_date }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[PROJECT_SUMMARY_ONE_PARAGRAPH]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.project_summary_one_paragraph }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[List of services]",
+              "replaceText": "={{ \n  (() => {\n    const d = $('Basic LLM Chain1').item.json;\n    const raw = Array.isArray(d.services) ? d.services : [];\n    const normalized = raw.map(s => {\n      if (!s) return '';\n      if (typeof s === 'string') return s.trim();\n      if (typeof s === 'object') {\n        const name = String(s.name || s.title || s.service || '').trim();\n        const desc = String(s.description || s.desc || '').trim();\n        return desc ? `${name} — ${desc}` : name;\n      }\n      return String(s).trim();\n    }).filter(Boolean);\n    return normalized.length ? normalized.map(s => `- ${s}`).join('\\n') : '';\n  })()\n}}\n"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[Pricing]",
+              "replaceText": "={{ \n  (() => {\n    const d = $('Basic LLM Chain1').item.json;\n    const items = Array.isArray(d.pricing_items) ? d.pricing_items : [];\n    const cur = d.currency || 'EGP';\n    const fmt = new Intl.NumberFormat('en-EG', { style: 'currency', currency: cur, minimumFractionDigits: 0, maximumFractionDigits: 2 });\n    return items\n      .filter(i => i && i.label)\n      .map(i => `- ${i.label}: ${fmt.format(Number(i.amount) || 0)}`)\n      .join('\\n');\n  })()\n}}\n"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[COMPANY_SIGNATORY_NAME]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.client_signatory_name }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[COMPANY_SIGNATORY_TITLE]",
+              "replaceText": "={{ $('Basic LLM Chain1').item.json.client_signatory_title }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        0
+      ],
+      "id": "614d864f-e558-480e-9b23-177b8795ccbd",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "yUC7Wsk1ZirXOofx",
+          "name": "Proposals Docs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Basic LLM Chain1').item.json.client_legal_name }} - Contract - iWork Space",
+        "message": "=Dear {{ $('Basic LLM Chain1').item.json.client_signatory_name }},\n\nWe are ready to move forward with your esteemed company,{{ $('Get many database pages1').item.json.name }}.\nAs discussed, Please find attached our contract.\n\nThanks,\nKarim Nabil\nHead of AI Automation\n",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "Contract"
+              }
+            ]
+          },
+          "sendTo": "={{ $('Basic LLM Chain1').item.json.client_contact_email }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1632,
+        0
+      ],
+      "id": "30a29672-d1d1-49b0-a187-94208eae436c",
+      "name": "Create a draft",
+      "webhookId": "7f6660d8-9a20-4db1-90f4-08e809adff99",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "a2c9UEjNDk7eySDI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "Contract",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          },
+          "fileName": "contract.pdf"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1408,
+        0
+      ],
+      "id": "cd49306b-5689-4d43-a68b-d34980817842",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "OCZWhRphVS6qRkHE",
+          "name": "Public Cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Get many database pages1').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|select",
+              "selectValue": "Contract Ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        0
+      ],
+      "id": "f86678f5-d5bb-431f-a47f-526603e00d2f",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "697626167",
+        "text": "=Contract for {{ $json.property_name }} is ready and drafted in your email for {{ $json.property_email }}\n\nCompany: {{ $json.name }}\nContract itself: https://docs.google.com/document/d/{{ $json.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2496,
+        0
+      ],
+      "id": "060465f8-d1a2-462e-b7a9-240610835b02",
+      "name": "Send a text message1",
+      "webhookId": "7eed57bb-ce0e-4523-81a2-2e9c7894923e",
+      "credentials": {
+        "telegramApi": {
+          "id": "A7wHo2YizJtlT9Tx",
+          "name": "XYZ Internal Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "261df17f-c7d6-8063-bceb-c99bf9223738",
+          "mode": "list",
+          "cachedResultName": "Documents Data",
+          "cachedResultUrl": "https://www.notion.so/261df17fc7d68063bcebc99bf9223738"
+        },
+        "title": "={{ $json.name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Document Link|url",
+              "urlValue": "=https://docs.google.com/document/d/{{ $('Copy file').item.json.id }}"
+            },
+            {
+              "key": "Document Type|select",
+              "selectValue": "Contract"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        0
+      ],
+      "id": "350107a6-a68a-4b08-949d-e4f4a339bb87",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "Yt7l0AuczxFrVTKo",
+          "name": "XYZ CRM"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "On form submission1": [
+      {
+        "json": {
+          "Agent Name": "Karim",
+          "Company Name": "Automation with Karim",
+          "Services Chosen": [
+            "AI Agents",
+            "AI Automation"
+          ],
+          "Price": "1000 EGP for AI Agents per month and 500 EGP for one time for AI Automation",
+          "Notes": "He is intereseted in e commerce",
+          "Client Email": "test@gmail.co",
+          "Starting Date": "2025-09-15",
+          "submittedAt": "2025-09-01T07:57:36.613-04:00",
+          "formMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Get many database pages1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "180c3803-d453-4137-85fb-d70ff0ecbb2d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3261c478aff4b163520820f021817138b2454c49859c71acb92208b343ce1eb1"
+  },
+  "id": "Dlyk9O1ZYQZhkpRU",
+  "tags": [
+    {
+      "createdAt": "2025-08-09T16:21:13.080Z",
+      "updatedAt": "2025-08-09T16:21:13.080Z",
+      "id": "y06wYDsDlwLrVyJD",
+      "name": "sales automation"
+    }
+  ]
+}
